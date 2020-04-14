@@ -135,8 +135,10 @@ def unprocessable(error):
                     "message": "unprocessable"
                     }), 422
 
+
+
 '''
-@TODO implement error handlers using the @app.errorhandler(error) decorator
+@TOTO implement error handlers using the @app.errorhandler(error) decorator
     each error handler should return (with approprate messages):
              jsonify({
                     "success": False, 
@@ -145,11 +147,19 @@ def unprocessable(error):
                     }), 404
 
 '''
-
 '''
 @TODO implement error handler for 404
     error handler should conform to general task above 
 '''
+@app.errorhandler(404)
+def not_found(error):
+    return jsonify({
+        "success":False , 
+        "error":404 , 
+        "message":"Page not found"
+    }) , 404
+
+
 
 
 '''
