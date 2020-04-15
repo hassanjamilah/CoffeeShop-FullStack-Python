@@ -47,6 +47,7 @@ def get_drinks():
 '''
 @app.route('/drinks-detail' , methods=['GET'])
 def get_drinks_detail():
+    print ('🍎🍎🍎🍎🍎🍎🍎')
     allDrinks = Drink.query.all()
     formattedDrinks = [drink.long() for drink in allDrinks] 
     return jsonify({
@@ -76,7 +77,7 @@ def add_drinks():
     }) , 200
 
 '''
-@TODO implement endpoint
+@TOTO implement endpoint
     PATCH /drinks/<id>
         where <id> is the existing model id
         it should respond with a 404 error if <id> is not found
@@ -102,7 +103,7 @@ def update_drink(drink_id):
     }),200
 
 '''
-@TODO implement endpoint
+@TOTO implement endpoint
     DELETE /drinks/<id>
         where <id> is the existing model id
         it should respond with a 404 error if <id> is not found
@@ -148,7 +149,7 @@ def unprocessable(error):
 
 '''
 '''
-@TODO implement error handler for 404
+@TOTO implement error handler for 404
     error handler should conform to general task above 
 '''
 @app.errorhandler(404)
