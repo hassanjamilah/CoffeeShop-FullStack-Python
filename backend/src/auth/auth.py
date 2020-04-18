@@ -5,9 +5,9 @@ from jose import jwt
 from urllib.request import urlopen
 
 
-AUTH0_DOMAIN = 'udacity-fsnd.auth0.com'
+AUTH0_DOMAIN = 'andalussoft.au.auth0.com'
 ALGORITHMS = ['RS256']
-API_AUDIENCE = 'dev'
+API_AUDIENCE = 'coffee_shop_api'
 
 ## AuthError Exception
 '''
@@ -30,8 +30,11 @@ class AuthError(Exception):
         it should raise an AuthError if the header is malformed
     return the token part of the header
 '''
+
 def get_token_auth_header():
+
    raise Exception('Not Implemented')
+ 
 
 '''
 @TODO implement check_permissions(permission, payload) method
@@ -61,7 +64,72 @@ def check_permissions(permission, payload):
     !!NOTE urlopen has a common certificate error described here: https://stackoverflow.com/questions/50236117/scraping-ssl-certificate-verify-failed-error-for-http-en-wikipedia-org
 '''
 def verify_decode_jwt(token):
-    raise Exception('Not Implemented')
+    jsonurl = urlopen(f'https://{AUTH0_DOMAIN}/.well-known/jwks.json')
+    jwks = json.loads(jsonurl.read())
+    unverifiedHeader = jwt.get_unverified_header(token)
+    if 'kid' not in unverifiedHeader:
+        raise AuthError({
+           'code':'Invalid Header',
+           'description':'Authorization malformed'
+        },401)        
+    
+    rsa_key={}
+    for key in jwks['keys']:
+       if key['kid'] == unverifiedHeader['kid']:
+            rsa_key={
+               'alg':key['alg'],
+               'kty':key['kty'],
+               'use':key['use'],
+               'kid':key['kid'],
+               'n':key['n'],
+               'e':key['e']    
+            }
+    if rsa_key:
+        try:
+            payload = jwt.decode(
+                token ,
+                rsa_key ,
+                algorithms=ALGORITHMS,
+                audience=API_AUDIENCE,
+                issuer='https://'+AUTH0_DOMAIN+'/'
+            )
+            print ('🍮 🍮 🍮 🍮 🍮 🍮 🍮 🍮 ')
+            print (payload)
+            return payload
+        except jwt.ExpiredSignatureError :
+            raise AuthError({
+                'code':'token_expired',
+                'description':'Token expired.'
+            }, 401)
+        except jwt.JWTClaimsError:
+            raise AuthError({
+                'code':'invalid_claims',
+                'description':'Incorrect claims check the audiance and issuer'
+            } , 401)
+        except Exception:
+            raise AuthError({
+                'code':'Invalid header',
+                'description':'Unable to parse autherication token'
+            },400)   
+    raise AuthError({
+        'code':'Invalid Header',
+        'description':'Unable to find the appropriate key'
+    },400) 
+        
+      
+           
+    
+
+           
+          
+
+    
+
+  
+    
+    
+            
+        
 
 '''
 @TODO implement @requires_auth(permission) decorator method
