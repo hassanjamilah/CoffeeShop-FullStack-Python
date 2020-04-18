@@ -32,12 +32,39 @@ class AuthError(Exception):
 '''
 
 def get_token_auth_header():
-
-   raise Exception('Not Implemented')
+    auth = request.headers.get('Authorization' , None)
+    if not auth:
+        raise AuthError({
+            'code':'missing_headers' , 
+            'description':'Authorization header is expected'
+        },401)
+    parts = auth.split()
+    if parts[0].lower() != 'bearer':
+        raise AuthError({
+            'code':'invalide_header' , 
+            'description':'Autherization header should start with bearer'
+        },401)
+    
+    elif len(parts[1]) == 1 :
+        raise AuthError({
+            'code':'invalide_header' , 
+            'description':'Token not found'
+        },401)
+    elif len(parts) > 2:
+        raise AuthError({
+            'code':'invalide_header' , 
+            'description':'Authorization header should only contain bearer and token'
+        },401)
+    token = parts[1]
+    return token 
+        
+        
+        
+    raise Exception('Not Implemented')
  
 
 '''
-@TODO implement check_permissions(permission, payload) method
+@TOTO implement check_permissions(permission, payload) method
     @INPUTS
         permission: string permission (i.e. 'post:drink')
         payload: decoded jwt payload
@@ -47,11 +74,29 @@ def get_token_auth_header():
     it should raise an AuthError if the requested permission string is not in the payload permissions array
     return true otherwise
 '''
-def check_permissions(permission, payload):
-    raise Exception('Not Implemented')
 
+def check_permissions(permission, payload):
+   # permission = 'get:drinks-detail'
+   # token = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImxBTVdfVmxZRmRMeXlVS0xubkdrZiJ9.eyJpc3MiOiJodHRwczovL2FuZGFsdXNzb2Z0LmF1LmF1dGgwLmNvbS8iLCJzdWIiOiJhdXRoMHw1ZTlhNDQ3MGM2MjMxMDBiZWRlMWI2NDciLCJhdWQiOiJjb2ZmZWVfc2hvcF9hcGkiLCJpYXQiOjE1ODcxNzkyMjIsImV4cCI6MTU4NzE4NjQyMiwiYXpwIjoiTG1sR29xZlI0SG5FbUYzMnZmbUFzOGVVdVF6ODZQbjIiLCJzY29wZSI6IiIsInBlcm1pc3Npb25zIjpbImRlbGV0ZTpkcmlua3MiLCJnZXQ6ZHJpbmtzLWRldGFpbCIsInBhdGNoOmRyaW5rcyIsInBvc3Q6ZHJpbmtzIl19.QmxSKFsJKbNlakM_4SUsQf361cQM6gvIX7bUC-31eepkqh4bkd2vfQkAbGB8S_s5psqWP5We4ex2evkvdKiXdPCl_8O6IcOP7hR1GkZLP-dn6_f1pFBG8eDNJoyYM6yZm6LGiXkZuCKl8zZJBRusiiTlcw0k5wpbohh_PvjHB5jxG2C9hB9efWMFTMNbSB59AgpU1UI7_hcmiKNCRllUE-wpD_HipLWydS5_zFfgmmQU4gmWoQKzsyALt_ZxecuaGglypvpXXJUWbxH7TC4ZtjIQSHxw5wl4j8HTIi50uK8_0g_rYQfTGZKfy6CZKQFC10JEc6iqfkkojXvaT1LtDg'
+   # payload = verify_decode_jwt(token)
+    if 'permissions' not in payload:
+        raise AuthError({
+            'code':'no_premission' , 
+            'description':'premissions not exist'
+            } , 403)
+        return False
+    permissions  = payload['permissions']
+    print ('🚵‍♀️ 🚵‍♀️ 🚵‍♀️ 🚵‍♀️ 🚵‍♀️ 🚵‍♀️ 🚵‍♀️ 🚵‍♀️ {}'.format(permissions))
+    if permission not in permissions:
+        raise AuthError({
+            'code':'access_denied' , 
+            'description':'you do not have permission'
+        },403)
+        return False
+        
+    return True
 '''
-@TODO implement verify_decode_jwt(token) method
+@TOTO implement verify_decode_jwt(token) method
     @INPUTS
         token: a json web token (string)
 
@@ -147,6 +192,7 @@ def requires_auth(permission=''):
         def wrapper(*args, **kwargs):
             token = get_token_auth_header()
             payload = verify_decode_jwt(token)
+
             check_permissions(permission, payload)
             return f(payload, *args, **kwargs)
 
