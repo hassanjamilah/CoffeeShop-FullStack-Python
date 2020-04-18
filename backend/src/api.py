@@ -48,13 +48,13 @@ def get_drinks():
 @app.route('/drinks-detail' , methods=['GET'])
 @requires_auth('get:drinks-detail')
 def get_drinks_detail(payload):
-    print ('🍎🍎🍎🍎🍎🍎🍎')
-    allDrinks = Drink.query.all()
-    formattedDrinks = [drink.long() for drink in allDrinks] 
-    return jsonify({
-        "success":True , 
-        "drinks":formattedDrinks
-    }) ,200
+        allDrinks = Drink.query.all()
+        formattedDrinks = [drink.long() for drink in allDrinks] 
+        return jsonify({
+            "success":True , 
+            "drinks":formattedDrinks
+        }) ,200
+
 
 '''
 @TOTO implement endpoint
@@ -91,12 +91,12 @@ def add_drinks(payload):
 '''
 @app.route('/drinks/<int:drink_id>',methods=['PATCH'])
 @requires_auth('patch:drinks')
-def update_drink(drink_id , payload):
+def update_drink( payload , drink_id ):
     body = request.get_json()
     drink = Drink.query.get(drink_id)
     if drink == None:
         abort(404)
-    drink.id = drink_id 
+    #drink.id = drink_id 
     drink.title = body.get('title')
     drink.recipe = body.get('recipe')
     drink.update()
@@ -117,7 +117,7 @@ def update_drink(drink_id , payload):
 '''
 @app.route('/drinks/<int:drink_id>',methods=["DELETE"])
 @requires_auth('delete:drinks')
-def delete_drink(drink_id,payload):
+def delete_drink(payload,drink_id):
     drink = Drink.query.get(drink_id)
     if drink == None:
         abort(404)
@@ -165,6 +165,32 @@ def not_found(error):
     }) , 404
 
 
+
+@app.errorhandler(401)
+def not_authorized(error):
+    return jsonify({
+        "success":False , 
+        "error":401 , 
+        "message":"Authorization error"
+        } ), 401
+
+@app.errorhandler(400)
+def not_authorized(error):
+    return jsonify({
+        "success":False , 
+        "error":400 , 
+        "message":"Authorization error"
+        } ), 400
+
+@app.errorhandler(403)
+def not_authorized(error):
+    return jsonify({
+        "success":False , 
+        "error":403 , 
+        "message":"Access Denied"
+        } ), 403
+      
+    
 token = 'eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6ImxBTVdfVmxZRmRMeXlVS0xubkdrZiJ9.eyJpc3MiOiJodHRwczovL2FuZGFsdXNzb2Z0LmF1LmF1dGgwLmNvbS8iLCJzdWIiOiJhdXRoMHw1ZTlhNDM2NjA1Yjg3NzBiZTc3ZGExMTMiLCJhdWQiOiJjb2ZmZWVfc2hvcF9hcGkiLCJpYXQiOjE1ODcxNzQ1ODgsImV4cCI6MTU4NzE4MTc4OCwiYXpwIjoiTG1sR29xZlI0SG5FbUYzMnZmbUFzOGVVdVF6ODZQbjIiLCJzY29wZSI6IiIsInBlcm1pc3Npb25zIjpbImdldDpkcmlua3MtZGV0YWlsIl19.p36Gsh7KCTl_vHjfJtUlEdLRHhbelHww4fNFdmaBZ5e_WqU0a7xq3tJL3f0Xx3xBRjGyOTiZ53U5VLc_qHakFPnwaxkrRdPCIfZGpH8x1tjMQPxZSX2DbcxBOqR5IXPM871FFxlr3nTZ8XjUH2de1HE3ES8rtFXXebiXQsqXU8stHwGBGSB0Fh_gpWRhnaXUr511jxe3mejSmXrQx9U4mIE6Ql9Lrb03bltBG0xx5tgvuNqDN1BNKh1ZLeJtvtupZFj9mxvU-y-Cesx3UclI2Cb9Axs9ouAjCijIVhO-xJlfBDAcTq_BK_FeUobVru_TVJ_ihDylhxG0Vn0uKBGfeg'
 @app.route('/temp' , methods=['GET'])
 @requires_auth('delete:drinks')
@@ -173,6 +199,8 @@ def temp(payload):
     
    # x = get_token_auth_header()
     return jsonify({"success":True})
+
+
 '''
 @TODO implement error handler for AuthError
     error handler should conform to general task above 
